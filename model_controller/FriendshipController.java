@@ -82,4 +82,9 @@ public class FriendshipController {
     public Map<String, List<String>> getAllFriendships() {
         return friendships;
     }
+
+    public void resetFriendships() {
+        friendships.clear();
+        saveFriendships();
+    }
 }

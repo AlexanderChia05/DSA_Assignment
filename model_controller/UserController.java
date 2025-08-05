@@ -60,4 +60,10 @@ public class UserController {
     public Collection<User> getAllUsers() {
         return users.values();
     }
+
+    // Example method to reset all users
+    public void resetUsers() {
+        users.clear();
+        saveUsers();
+    }
 }
