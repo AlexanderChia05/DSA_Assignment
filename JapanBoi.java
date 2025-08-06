@@ -300,7 +300,7 @@ public class JapanBoi {
             System.out.println("User not found.");
             System.out.println("Press Enter to return...");
             scan.nextLine();
-            CreateGraph();
+            MainMenu();
             return;
         }
 
@@ -358,7 +358,7 @@ public class JapanBoi {
 
                 String card = StringUtils.beautify(
                     "Recommendation\n" +
-                    "==============\n" +
+                    "─────────────────\n" +
                     "Name: " + rec + "\n" +
                     mutualInfo
                 );
@@ -377,7 +377,7 @@ public class JapanBoi {
                     for (int j = 0; j < rowCards; j++) {
                         String[] cardLines = cardLinesList.get(i + j);
                         // Print the line if it exists, otherwise print an empty string
-                        String lineText = (line < cardLines.length) ? cardLines[line] : "";
+                        String lineText = (line < cardLines.length) ? cardLines[line] : "                       ";
                         System.out.print(lineText + "  ");
                     }
                     System.out.println();
@@ -391,6 +391,7 @@ public class JapanBoi {
         MainMenu();
     }
 
+    
     private static void ViewFriendNetwork() {
         clearScreen();
         System.out.println("All users:");
@@ -453,7 +454,7 @@ public class JapanBoi {
         for (String name : level1) {
             String card = StringUtils.beautify(
                 "Direct Friend\n" +
-                "───────────────────\n" +
+                "─────────────────\n" +
                 "Name: " + name
             );
             level1CardLinesList.add(card.split("\n"));
@@ -470,7 +471,7 @@ public class JapanBoi {
                 for (int line = 0; line < maxCardHeight; line++) {
                     for (int j = 0; j < rowCards; j++) {
                         String[] cardLines = level1CardLinesList.get(i + j);
-                        String lineText = (line < cardLines.length) ? cardLines[line] : "";
+                        String lineText = (line < cardLines.length) ? cardLines[line] : "                       ";
                         System.out.print(lineText + "  ");
                     }
                     System.out.println();
@@ -502,7 +503,7 @@ public class JapanBoi {
 
                 String card = StringUtils.beautify(
                     "Recommendation\n" +
-                    "───────────────────\n" +
+                    "─────────────────\n" +
                     "Name: " + rec + "\n" +
                     mutualInfo
                 );
@@ -519,7 +520,7 @@ public class JapanBoi {
                 for (int line = 0; line < maxCardHeight; line++) {
                     for (int j = 0; j < rowCards; j++) {
                         String[] cardLines = cardLinesList.get(i + j);
-                        String lineText = (line < cardLines.length) ? cardLines[line] : "";
+                        String lineText = (line < cardLines.length) ? cardLines[line] : "                         ";
                         System.out.print(lineText + "  ");
                     }
                     System.out.println();
@@ -541,7 +542,7 @@ public class JapanBoi {
         for (User user : users) {
             String card = StringUtils.beautify(
                 "User Profile\n" +
-                "============\n" +
+                "────────────\n" +
                 "Name: " + user.getName()
             );
             cardLinesList.add(card.split("\n"));
