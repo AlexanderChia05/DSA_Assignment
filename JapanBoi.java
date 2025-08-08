@@ -284,118 +284,6 @@ public class JapanBoi {
         clearScreen();
         System.out.println("All users:");
         displayUser(userController.getAllUsers());
-        
-        System.out.print("\nEnter your username for recommendations: "); 
-        String username = scan.nextLine().trim();
-
-        // Check if user exists
-        boolean exists = false;
-        for (User user : userController.getAllUsers()) {
-            if (user.getName().equals(username)) {
-                exists = true;
-                break;
-            }
-        }
-        if (!exists) {
-            System.out.println("User not found.");
-            System.out.println("Press Enter to return...");
-            scan.nextLine();
-            MainMenu();
-            return;
-        }
-
-        // BFS for friend recommendations
-        Set<String> visited = new HashSet<>();
-        Queue<String> queue = new LinkedList<>();
-        Map<String, Integer> level = new HashMap<>();
-        Set<String> directFriends = new HashSet<>(friendshipController.getFriends(username));
-        Set<String> recommendations = new HashSet<>();
-
-        queue.add(username);
-        visited.add(username);
-        level.put(username, 0);
-
-        while (!queue.isEmpty()) {
-            String current = queue.poll();
-            int currLevel = level.get(current);
-
-            if (currLevel >= 2) continue; // Only look for friends-of-friends
-
-            for (String friend : friendshipController.getFriends(current)) {
-                if (!visited.contains(friend)) {
-                    queue.add(friend);
-                    visited.add(friend);
-                    level.put(friend, currLevel + 1);
-
-                    // If friend is at level 2 and not a direct friend or self, recommend
-                    if (currLevel + 1 == 2 && !directFriends.contains(friend) && !friend.equals(username)) {
-                        recommendations.add(friend);
-                    }
-                }
-            }
-        }
-
-        if (recommendations.isEmpty()) {
-            System.out.println("No friend recommendations found.");
-        } else {
-            System.out.println("Recommended friends for " + username + ":");
-
-            // Prepare cards for recommendations
-            List<String[]> cardLinesList = new ArrayList<>();
-            int cardsPerRow = 3;
-
-            for (String rec : recommendations) {
-                // Find mutual friends
-                Set<String> recFriends = new HashSet<>(friendshipController.getFriends(rec));
-                Set<String> mutual = new HashSet<>(recFriends);
-                mutual.retainAll(directFriends);
-
-                StringBuilder mutualInfo = new StringBuilder();
-                mutualInfo.append("Mutual Friends: ").append(mutual.size());
-                if (!mutual.isEmpty()) {
-                    mutualInfo.append("\n- ").append(String.join("\n- ", mutual));
-                }
-
-                String card = StringUtils.beautify(
-                    "Recommendation\n" +
-                    "─────────────────\n" +
-                    "Name: " + rec + "\n" +
-                    mutualInfo
-                );
-                cardLinesList.add(card.split("\n"));
-            }
-
-            for (int i = 0; i < cardLinesList.size(); i += cardsPerRow) {
-                int rowCards = Math.min(cardsPerRow, cardLinesList.size() - i);
-                // Find the maximum height of cards in this row
-                int maxCardHeight = 0;
-                for (int j = 0; j < rowCards; j++) {
-                    maxCardHeight = Math.max(maxCardHeight, cardLinesList.get(i + j).length);
-                }
-                // Print cards line by line
-                for (int line = 0; line < maxCardHeight; line++) {
-                    for (int j = 0; j < rowCards; j++) {
-                        String[] cardLines = cardLinesList.get(i + j);
-                        // Print the line if it exists, otherwise print an empty string
-                        String lineText = (line < cardLines.length) ? cardLines[line] : "                       ";
-                        System.out.print(lineText + "  ");
-                    }
-                    System.out.println();
-                }
-                System.out.println();
-            }
-        }
-
-        System.out.println("\nPress Enter to return...");
-        scan.nextLine();
-        MainMenu();
-    }
-
-    
-    private static void ViewFriendNetwork() {
-        clearScreen();
-        System.out.println("All users:");
-        displayUser(userController.getAllUsers());
 
         System.out.print("\nEnter the username to view their friend network: ");
         String username = scan.nextLine().trim();
@@ -533,6 +421,128 @@ public class JapanBoi {
         scan.nextLine();
         MainMenu();
     }
+    
+    private static void ViewFriendNetwork() {
+        clearScreen();
+        System.out.println("Friend Recommendation");
+        System.out.println("All users:");
+        displayUser(userController.getAllUsers());
+        
+        System.out.print("\nEnter the username to get recommendations: ");
+        String username = scan.nextLine().trim();
+
+        // Check if user exists
+        boolean exists = false;
+        for (User user : userController.getAllUsers()) {
+            if (user.getName().equals(username)) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) {
+            System.out.println("User not found.");
+            System.out.println("Press Enter to return...");
+            scan.nextLine();
+            MainMenu();
+            return;
+        }
+
+        // BFS to find friends and friends of friends
+        Set<String> visited = new HashSet<>();
+        Queue<String> queue = new LinkedList<>();
+        Map<String, Integer> level = new HashMap<>();
+        List<String> level1 = new ArrayList<>();
+        List<String> level2 = new ArrayList<>();
+
+        queue.add(username);
+        visited.add(username);
+        level.put(username, 0);
+
+        while (!queue.isEmpty()) {
+            String current = queue.poll();
+            int currLevel = level.get(current);
+
+            for (String friend : friendshipController.getFriends(current)) {
+                if (!visited.contains(friend)) {
+                    visited.add(friend);
+                    queue.add(friend);
+                    int nextLevel = currLevel + 1;
+                    level.put(friend, nextLevel);
+                    if (nextLevel == 1) {
+                        level1.add(friend);
+                    } else if (nextLevel == 2) {
+                        level2.add(friend);
+                    }
+                }
+            }
+        }
+
+        // Display recommendation graphs
+        if (level2.isEmpty()) {
+            System.out.println("No friend recommendations available.");
+        } else {
+            Set<String> directFriends = new HashSet<>(level1);
+            for (String recommended : level2) {
+                // Find mutual friends
+                Set<String> recFriends = new HashSet<>(friendshipController.getFriends(recommended));
+                Set<String> mutual = new HashSet<>(recFriends);
+                mutual.retainAll(directFriends);
+
+                if (!mutual.isEmpty()) {
+                    // Build the graph
+                    StringBuilder mutualInfo = new StringBuilder();
+                    for (String mutualFriend : mutual) {
+                        mutualInfo.append("- ").append(mutualFriend).append("\n");
+                    }
+
+                    String userCard = StringUtils.beautify(
+                        "User\n" +
+                        "────────────\n" +
+                        "Name: " + username,
+                        StringUtils.BorderColor.BLUE
+                    );
+
+                    String mutualCard = StringUtils.beautify(
+                        "Mutual Friends\n" +
+                        "──────────────\n" +
+                        mutualInfo.toString().trim(),
+                        StringUtils.BorderColor.RED
+                    );
+
+                    String recommendedCard = StringUtils.beautify(
+                        "Recommended Friend\n" +
+                        "──────────────────\n" +
+                        "Name: " + recommended,
+                        StringUtils.BorderColor.BLUE
+                    );
+
+                    // Split cards into lines
+                    String[] userLines = userCard.split("\n");
+                    String[] mutualLines = mutualCard.split("\n");
+                    String[] recommendedLines = recommendedCard.split("\n");
+
+                    // Find max height
+                    int maxHeight = Math.max(userLines.length, Math.max(mutualLines.length, recommendedLines.length));
+
+                    // Print the graph
+                    for (int i = 0; i < maxHeight; i++) {
+                        String userLine = i < userLines.length ? userLines[i] : " ".repeat(userLines[0].length() / 2);
+                        String mutualLine = i < mutualLines.length ? mutualLines[i] : " ".repeat(mutualLines[0].length());
+                        String recommendedLine = i < recommendedLines.length ? recommendedLines[i] : " ".repeat(recommendedLines[0].length());
+                        
+                        // Print with consistent spacing
+                        String connector = (i == maxHeight/2) ? "────" : "    ";
+                        System.out.println(userLine + "  " + connector + "  " + mutualLine + "  " + connector + "  " + recommendedLine);
+                    }
+                    System.out.println();
+                }
+            }
+        }
+
+        System.out.println("\nPress Enter to return...");
+        scan.nextLine();
+        MainMenu();
+    }
 
     private static void displayUser(Collection<User> users) {
         List<String[]> cardLinesList = new ArrayList<>();
@@ -582,4 +592,5 @@ public class JapanBoi {
             System.err.println("Error clearing screen: " + e.getMessage());
         }
     }
+
 }
