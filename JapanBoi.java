@@ -285,7 +285,7 @@ public class JapanBoi {
         System.out.println("All users:");
         displayUser(userController.getAllUsers());
 
-        System.out.print("\nEnter the username to view their friend network: ");
+        System.out.print("\nEnter the username to search recommended friends: ");
         String username = scan.nextLine().trim();
 
         // Check if user exists
@@ -424,11 +424,10 @@ public class JapanBoi {
     
     private static void ViewFriendNetwork() {
         clearScreen();
-        System.out.println("Friend Recommendation");
         System.out.println("All users:");
         displayUser(userController.getAllUsers());
         
-        System.out.print("\nEnter the username to get recommendations: ");
+        System.out.print("\nEnter the username to view friend network: ");
         String username = scan.nextLine().trim();
 
         // Check if user exists
