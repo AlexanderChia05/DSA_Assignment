@@ -110,6 +110,7 @@ public class JapanBoi {
     private static void removeUser() {
         String continueChoice;
         do {
+            clearScreen();
             System.out.println("All users:");
             displayUser(userController.getAllUsers());
 
@@ -139,15 +140,37 @@ public class JapanBoi {
             System.out.println("All friendships:");
             Set<String> displayed = new HashSet<>();
             Map<String, List<String>> friendships = friendshipController.getAllFriendships();
+            List<String[]> cardLinesList = new ArrayList<>();
+            int cardsPerRow = 4;
+
             for (Map.Entry<String, List<String>> entry : friendships.entrySet()) {
                 String user = entry.getKey();
                 for (String friend : entry.getValue()) {
                     String pair = user.compareTo(friend) < 0 ? user + "," + friend : friend + "," + user;
                     if (!displayed.contains(pair)) {
-                        displayFriendship(user, friend);
+                        String card = StringUtils.beautify(
+                            "Friendship\n" +
+                            "───────────────\n" +
+                            user + " - " + friend,
+                            StringUtils.BorderColor.RED
+                        );
+                        cardLinesList.add(card.split("\n"));
                         displayed.add(pair);
                     }
                 }
+            }
+
+            // Print cards in rows of 4
+            for (int i = 0; i < cardLinesList.size(); i += cardsPerRow) {
+                int rowCards = Math.min(cardsPerRow, cardLinesList.size() - i);
+                int cardHeight = cardLinesList.get(i).length;
+                for (int line = 0; line < cardHeight; line++) {
+                    for (int j = 0; j < rowCards; j++) {
+                        System.out.print(cardLinesList.get(i + j)[line] + "  ");
+                    }
+                    System.out.println();
+                }
+                System.out.println();
             }
 
             System.out.print("\nEnter the name of the first user: ");
@@ -179,18 +202,41 @@ public class JapanBoi {
     private static void removeFriendship() {
         String continueChoice;
         do {
-            System.out.println("All friendships:");
+            clearScreen();
+            System.out.println("All friendships:\n");
             Set<String> displayed = new HashSet<>();
             Map<String, List<String>> friendships = friendshipController.getAllFriendships();
+            List<String[]> cardLinesList = new ArrayList<>();
+            int cardsPerRow = 4;
+
             for (Map.Entry<String, List<String>> entry : friendships.entrySet()) {
                 String user = entry.getKey();
                 for (String friend : entry.getValue()) {
                     String pair = user.compareTo(friend) < 0 ? user + "," + friend : friend + "," + user;
                     if (!displayed.contains(pair)) {
-                        displayFriendship(user, friend);
+                        String card = StringUtils.beautify(
+                            "Friendship\n" +
+                            "───────────────\n" +
+                            user + " - " + friend,
+                            StringUtils.BorderColor.RED
+                        );
+                        cardLinesList.add(card.split("\n"));
                         displayed.add(pair);
                     }
                 }
+            }
+
+            // Print cards in rows of 4
+            for (int i = 0; i < cardLinesList.size(); i += cardsPerRow) {
+                int rowCards = Math.min(cardsPerRow, cardLinesList.size() - i);
+                int cardHeight = cardLinesList.get(i).length;
+                for (int line = 0; line < cardHeight; line++) {
+                    for (int j = 0; j < rowCards; j++) {
+                        System.out.print(cardLinesList.get(i + j)[line] + "  ");
+                    }
+                    System.out.println();
+                }
+                System.out.println();
             }
 
             System.out.print("\nEnter the name of the first user: ");
@@ -235,8 +281,9 @@ public class JapanBoi {
                 if (!displayed.contains(pair)) {
                     String card = StringUtils.beautify(
                         "Friendship\n" +
-                        "==========\n" +
-                        user + " - " + friend
+                        "───────────────\n" +
+                        user + " - " + friend,
+                        StringUtils.BorderColor.RED
                     );
                     cardLinesList.add(card.split("\n"));
                     displayed.add(pair);
@@ -569,15 +616,6 @@ public class JapanBoi {
             }
             System.out.println();
         }
-    }
-
-    private static void displayFriendship(String user1, String user2) {
-        String card = StringUtils.beautify(
-            "Friendship\n" +
-            "==========\n" +
-            user1 + " - " + user2
-        );
-        System.out.println(card);
     }
 
     private static void clearScreen() {
